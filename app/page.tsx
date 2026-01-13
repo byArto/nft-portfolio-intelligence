@@ -13,6 +13,7 @@ import SocialLinks from './components/SocialLinks'
 import MarketIntelligence from './components/MarketIntelligence'
 import Top100MarketCap from './components/Top100MarketCap' 
 import SettingsMenu from './components/SettingsMenu'
+import IntroModal from './components/IntroModal'
 import { Language, getTranslation } from './lib/translations'
 
 export default function HomePage() {
@@ -24,10 +25,25 @@ export default function HomePage() {
   const [currentChain, setCurrentChain] = useState<Chain>('eth')
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [language, setLanguage] = useState<Language>('en')
+  const [showIntroModal, setShowIntroModal] = useState(false)
   const [filters, setFilters] = useState<FilterState>({
     collections: [],
     chains: []
   })
+
+  // Проверяем, показывали ли модалку ранее
+  useEffect(() => {
+    const hasSeenIntro = localStorage.getItem('hasSeenIntro')
+    if (!hasSeenIntro) {
+      setShowIntroModal(true)
+    }
+  }, [])
+
+  // Закрытие intro modal
+  const handleCloseIntro = () => {
+    setShowIntroModal(false)
+    localStorage.setItem('hasSeenIntro', 'true')
+  }
 
   // Загружаем настройки из localStorage
   useEffect(() => {
@@ -97,6 +113,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen transition-colors">
+      {/* Intro Modal */}
+      {showIntroModal && <IntroModal onClose={handleCloseIntro} />}
+
       <div className="fixed top-6 right-6 flex items-center gap-3 z-50">
         <SettingsMenu 
           theme={theme}
