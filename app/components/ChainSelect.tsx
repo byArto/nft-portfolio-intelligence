@@ -11,7 +11,10 @@ const CHAINS: ChainInfo[] = [
   { value: 'arbitrum', label: 'Arbitrum', icon: '' },
   { value: 'optimism', label: 'Optimism', icon: '' },
   { value: 'bsc', label: 'BNB Chain', icon: '' },
-  { value: 'avalanche', label: 'Avalanche', icon: '' }
+  { value: 'avalanche', label: 'Avalanche', icon: '' },
+  { value: 'monad', label: 'Monad', icon: '' },
+  { value: 'abstract', label: 'Abstract', icon: '' },
+  { value: 'blast', label: 'Blast', icon: '' },
 ]
 
 type Props = {

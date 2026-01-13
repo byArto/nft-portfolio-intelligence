@@ -6,7 +6,7 @@ import { formatPrice, formatPercent, getPriceConfidence } from '../lib/nft-utils
 import { TrendingUp, TrendingDown, Sparkles, Zap, ArrowRight } from 'lucide-react'
 import { ChainIcon } from '../lib/chain-icons'
 
-// Маппинг цветов для сетей (без иконок-эмодзи)
+// Маппинг цветов для сетей
 const CHAIN_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
   eth: { color: 'text-gray-300', bg: 'bg-gray-500/20', border: 'border-gray-500/30' },
   polygon: { color: 'text-purple-300', bg: 'bg-purple-500/20', border: 'border-purple-500/30' },
@@ -14,7 +14,10 @@ const CHAIN_CONFIG: Record<string, { color: string; bg: string; border: string }
   arbitrum: { color: 'text-cyan-300', bg: 'bg-cyan-500/20', border: 'border-cyan-500/30' },
   optimism: { color: 'text-red-300', bg: 'bg-red-500/20', border: 'border-red-500/30' },
   bsc: { color: 'text-yellow-300', bg: 'bg-yellow-500/20', border: 'border-yellow-500/30' },
-  avalanche: { color: 'text-red-300', bg: 'bg-red-500/20', border: 'border-red-500/30' }
+  avalanche: { color: 'text-red-300', bg: 'bg-red-500/20', border: 'border-red-500/30' },
+  monad: { color: 'text-purple-300', bg: 'bg-purple-600/20', border: 'border-purple-600/30' },
+  abstract: { color: 'text-blue-300', bg: 'bg-blue-600/20', border: 'border-blue-600/30' },
+  blast: { color: 'text-yellow-300', bg: 'bg-yellow-400/20', border: 'border-yellow-400/30' },
 }
 
 function ChainBadge({ chain }: { chain: string }) {
@@ -49,11 +52,9 @@ function getRarityColor(percent?: number): { bg: string; text: string; label: st
 type Props = {
   nft: NFTItem
   onClick: () => void
-  isFavorite: boolean
-  onToggleFavorite: (nft: NFTItem) => void
 }
 
-export default function NFTCard({ nft, onClick, isFavorite, onToggleFavorite }: Props) {
+export default function NFTCard({ nft, onClick }: Props) {
   const rarityColor = getRarityColor(nft.rarityPercent)
   const priceConfidence = getPriceConfidence(nft.freshnessDays)
 
@@ -110,19 +111,6 @@ export default function NFTCard({ nft, onClick, isFavorite, onToggleFavorite }: 
             </div>
           )}
         </div>
-
-        {/* Favorite Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggleFavorite(nft)
-          }}
-          className="absolute bottom-3 right-3 p-2 rounded-lg bg-slate-900/80 backdrop-blur-sm border border-slate-700 hover:border-yellow-500 transition-all hover:scale-110"
-        >
-          <span className={`text-lg ${isFavorite ? 'text-yellow-400' : 'text-slate-500'}`}>
-            {isFavorite ? '⭐' : '☆'}
-          </span>
-        </button>
       </div>
       
       {/* Info Section */}
