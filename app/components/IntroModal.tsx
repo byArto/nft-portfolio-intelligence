@@ -10,8 +10,11 @@ type Props = {
 export default function IntroModal({ onClose }: Props) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
       onClick={onClose}
+      style={{
+        animation: 'fadeIn 0.3s ease-out'
+      }}
     >
       <div
         className="
@@ -21,9 +24,11 @@ export default function IntroModal({ onClose }: Props) {
           max-w-2xl w-full
           shadow-2xl shadow-amber-500/20
           overflow-hidden
-          animate-scaleIn
         "
         onClick={(e) => e.stopPropagation()}
+        style={{
+          animation: 'scaleIn 0.3s ease-out'
+        }}
       >
         {/* Header with gradient */}
         <div className="relative bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/10 p-8 border-b border-slate-700">
@@ -59,7 +64,7 @@ export default function IntroModal({ onClose }: Props) {
                 <h3 className="font-semibold text-slate-100">Multi-Chain</h3>
               </div>
               <p className="text-sm text-slate-400">
-                Track NFTs across 10+ EVM chains in one place
+                Track NFTs across 7 EVM chains in one place
               </p>
             </div>
 
@@ -147,35 +152,16 @@ export default function IntroModal({ onClose }: Props) {
         </div>
       </div>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        
         @keyframes scaleIn {
-          from {
-            transform: scale(0.9);
-            opacity: 0;
-          }
-          to {
-            transform: scale(1);
-            opacity: 1;
-          }
+          from { transform: scale(0.9); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
         }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-        
-        .animate-scaleIn {
-          animation: scaleIn 0.3s ease-out;
-        }
-      `}</style>
+      `}} />
     </div>
   )
 }
