@@ -1,10 +1,12 @@
 // app/components/NFTModal.tsx
 'use client'
 
+import { useState } from 'react'
 import { NFTItem } from '../types/nft'
 import { formatPrice, formatPercent, parseHolderPerks } from '../lib/nft-utils'
-import { X, ExternalLink, Calendar, Sparkles, Zap, TrendingUp, TrendingDown } from 'lucide-react'
+import { X, ExternalLink, Calendar, Sparkles, Zap, TrendingUp, TrendingDown, Download, FileJson, Image } from 'lucide-react'
 import NFTPriceChart from './NFTPriceChart'
+import { exportNFTAsJSON, exportNFTAsPNG } from '../lib/export-utils'
 
 // Цвета редкости
 function getRarityColor(percent?: number): { bg: string; text: string; border: string; label: string } {
@@ -23,13 +25,35 @@ type Props = {
 }
 
 export default function NFTModal({ nft, onClose }: Props) {
+  const [isExporting, setIsExporting] = useState(false)
+
   if (!nft) return null
 
   const rarityColor = getRarityColor(nft.rarityPercent)
-  
-  // Парсим holder perks (в реальности нужен collection.description)
-  // Пока используем collectionName как fallback
   const holderPerks = parseHolderPerks(nft.collectionName)
+
+  // Экспорт JSON
+  const handleExportJSON = () => {
+    try {
+      exportNFTAsJSON(nft)
+    } catch (error) {
+      console.error('Export JSON failed:', error)
+      alert('Failed to export JSON. Please try again.')
+    }
+  }
+
+  // Экспорт PNG
+  const handleExportPNG = async () => {
+    setIsExporting(true)
+    try {
+      await exportNFTAsPNG('nft-modal-content', nft.name)
+    } catch (error) {
+      console.error('Export PNG failed:', error)
+      alert('Failed to export image. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   return (
     <div
@@ -37,6 +61,7 @@ export default function NFTModal({ nft, onClose }: Props) {
       onClick={onClose}
     >
       <div
+        id="nft-modal-content"
         className="
           bg-slate-800 border border-slate-700
           rounded-2xl
@@ -55,12 +80,36 @@ export default function NFTModal({ nft, onClose }: Props) {
               {nft.collectionName}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
-          >
-            <X size={24} className="text-slate-400" />
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Export Buttons */}
+            <button
+              onClick={handleExportJSON}
+              className="p-2 rounded-lg hover:bg-slate-700 transition-colors group"
+              title="Export as JSON"
+            >
+              <FileJson size={20} className="text-slate-400 group-hover:text-amber-400" />
+            </button>
+            <button
+              onClick={handleExportPNG}
+              disabled={isExporting}
+              className="p-2 rounded-lg hover:bg-slate-700 transition-colors group disabled:opacity-50"
+              title="Export as PNG"
+            >
+              {isExporting ? (
+                <div className="animate-spin">
+                  <Download size={20} className="text-slate-400" />
+                </div>
+              ) : (
+                <Image size={20} className="text-slate-400 group-hover:text-amber-400" />
+              )}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+            >
+              <X size={24} className="text-slate-400" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
