@@ -1,65 +1,255 @@
-import Image from "next/image";
+// app/page.tsx
+'use client'
 
-export default function Home() {
+import { useState, useMemo, useEffect } from 'react'
+import { Chain, NFTItem } from './types/nft'
+import AddressForm from './components/AddressForm'
+import NFTGrid from './components/NFTGrid'
+import NFTModal from './components/NFTModal'
+import LoadingSkeleton from './components/LoadingSkeleton'
+import NFTFilters, { FilterState } from './components/NFTFilters'
+import PortfolioSummary from './components/PortfolioSummary'
+import SocialLinks from './components/SocialLinks'
+import MarketIntelligence from './components/MarketIntelligence'
+import Top100MarketCap from './components/Top100MarketCap' 
+import SettingsMenu from './components/SettingsMenu'
+import { Language, getTranslation } from './lib/translations'
+
+export default function HomePage() {
+  const [nfts, setNfts] = useState<NFTItem[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedNFT, setSelectedNFT] = useState<NFTItem | null>(null)
+  const [currentAddress, setCurrentAddress] = useState('')
+  const [currentChain, setCurrentChain] = useState<Chain>('eth')
+  const [favorites, setFavorites] = useState<string[]>([])
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [language, setLanguage] = useState<Language>('en')
+  const [filters, setFilters] = useState<FilterState>({
+    collections: [],
+    chains: []
+  })
+
+  // Загружаем favorites из localStorage при монтировании
+  useEffect(() => {
+    const saved = localStorage.getItem('nft-favorites')
+    if (saved) {
+      try {
+        setFavorites(JSON.parse(saved))
+      } catch (e) {
+        console.error('Failed to load favorites', e)
+      }
+    }
+  }, [])
+
+  // Сохраняем favorites в localStorage при изменении
+  useEffect(() => {
+    localStorage.setItem('nft-favorites', JSON.stringify(favorites))
+  }, [favorites])
+
+  // Toggle favorite
+  const toggleFavorite = (nft: NFTItem) => {
+    const id = `${nft.contractAddress}-${nft.tokenId}`
+    setFavorites(prev => 
+      prev.includes(id) 
+        ? prev.filter(f => f !== id)
+        : [...prev, id]
+    )
+  }
+   // Загружаем настройки из localStorage
+   useEffect(() => {
+  const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
+    const savedLang = localStorage.getItem('language') as Language | null
+  
+  if (savedTheme) setTheme(savedTheme)
+  if (savedLang) setLanguage(savedLang)
+}, [])
+
+// Применяем тему
+useEffect(() => {
+  if (theme === 'light') {
+    document.documentElement.classList.remove('dark')
+  } else {
+    document.documentElement.classList.add('dark')
+  }
+  localStorage.setItem('theme', theme)
+}, [theme])
+
+// Сохраняем язык
+useEffect(() => {
+  localStorage.setItem('language', language)
+}, [language])
+  // Check if NFT is favorited
+  const isFavorite = (nft: NFTItem) => {
+    const id = `${nft.contractAddress}-${nft.tokenId}`
+    return favorites.includes(id)
+  }
+
+  // Фильтрация NFT через useMemo
+  const filteredNfts = useMemo(() => {
+    return nfts.filter(nft => {
+      // Фильтр по избранному
+      if (showFavoritesOnly && !isFavorite(nft)) {
+        return false
+      }
+
+      // Фильтр по коллекциям
+      if (filters.collections.length > 0 && !filters.collections.includes(nft.collectionName)) {
+        return false
+      }
+
+      // Фильтр по сетям
+      if (filters.chains.length > 0 && !filters.chains.includes(nft.chain)) {
+        return false
+      } 
+
+      return true
+    })
+  }, [nfts, filters, showFavoritesOnly, favorites])
+
+  const handleFetchNFTs = async (address: string, chain: Chain) => {
+    setIsLoading(true)
+    setError(null)
+    setNfts([])
+    
+    // Сохраняем текущие значения
+    setCurrentAddress(address)
+    setCurrentChain(chain)
+
+    try {
+      const response = await fetch(`/api/nfts?address=${address}&chain=${chain}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch NFTs')
+      }
+
+      setNfts(data.nfts)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
+      <div className="fixed top-6 right-6 flex items-center gap-3 z-50">
+  <SettingsMenu 
+    theme={theme}
+    language={language}
+    onThemeChange={setTheme}
+    onLanguageChange={setLanguage}
+  />
+  <SocialLinks />
+</div>
+      {/* Hero Section */}
+<div className="border-b border-amber-200/50 dark:border-amber-700/50 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-12">
+      {/* Global Market Intelligence - слева */}
+      <div className="w-full lg:w-72 flex-shrink-0">
+        <MarketIntelligence />
+      </div>
+
+      {/* Title - по центру */}
+      <div className="flex-1 text-center">
+      <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-amber-100">
+  {getTranslation(language, 'title')}
+</h1>
+<p className="text-lg text-slate-600 dark:text-amber-400 max-w-2xl mx-auto mt-3">
+  {getTranslation(language, 'subtitle')}
+</p>
+      </div>
+
+      {/* Top 100 Market Cap - справа */}
+      <div className="w-full lg:w-72 flex-shrink-0">
+        <Top100MarketCap />
+      </div>
     </div>
-  );
+  </div>
+</div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Search Section */}
+        <div className="py-8 sm:py-12">
+          <AddressForm 
+            onSubmit={handleFetchNFTs} 
+            isLoading={isLoading}
+            currentAddress={currentAddress}
+            currentChain={currentChain}
+          />
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-8">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 text-red-500 mt-0.5">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-red-800 dark:text-red-400">
+                    Error loading NFTs
+                  </h3>
+                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                    {error}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading Skeleton */}
+        {isLoading && <LoadingSkeleton />}
+
+        {/* Results Section */}
+        {!isLoading && nfts.length > 0 && (
+          <div className="pb-16">
+            <PortfolioSummary nfts={nfts} />
+            <NFTFilters 
+              nfts={nfts} 
+              filters={filters} 
+              onFiltersChange={setFilters}
+              showFavoritesOnly={showFavoritesOnly}
+              onToggleFavorites={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              favoritesCount={favorites.length}
+            />
+            <NFTGrid 
+              nfts={filteredNfts} 
+              onCardClick={setSelectedNFT}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
+            />
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && nfts.length === 0 && (
+          <div className="py-20 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 dark:bg-gray-700 mb-4">
+              <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-slate-900 dark:text-amber-100 mb-2">
+              Ready to explore
+            </h3>
+            <p className="text-slate-600 dark:text-amber-400">
+              Enter a wallet address above to view NFT portfolio
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
+      <NFTModal nft={selectedNFT} onClose={() => setSelectedNFT(null)} />
+    </div>
+  )
 }
