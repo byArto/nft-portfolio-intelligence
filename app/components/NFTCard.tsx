@@ -14,10 +14,7 @@ const CHAIN_CONFIG: Record<string, { color: string; bg: string; border: string }
   arbitrum: { color: 'text-cyan-300', bg: 'bg-cyan-500/20', border: 'border-cyan-500/30' },
   optimism: { color: 'text-red-300', bg: 'bg-red-500/20', border: 'border-red-500/30' },
   bsc: { color: 'text-yellow-300', bg: 'bg-yellow-500/20', border: 'border-yellow-500/30' },
-  avalanche: { color: 'text-red-300', bg: 'bg-red-500/20', border: 'border-red-500/30' },
-  monad: { color: 'text-purple-300', bg: 'bg-purple-600/20', border: 'border-purple-600/30' },
-  abstract: { color: 'text-blue-300', bg: 'bg-blue-600/20', border: 'border-blue-600/30' },
-  blast: { color: 'text-yellow-300', bg: 'bg-yellow-400/20', border: 'border-yellow-400/30' },
+  avalanche: { color: 'text-red-300', bg: 'bg-red-500/20', border: 'border-red-500/30' }
 }
 
 function ChainBadge({ chain }: { chain: string }) {

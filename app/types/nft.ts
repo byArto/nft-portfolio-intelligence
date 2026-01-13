@@ -51,9 +51,6 @@ export type Chain =
   | 'optimism' 
   | 'bsc' 
   | 'avalanche'
-  | 'monad'
-  | 'abstract'
-  | 'blast'
 
 // Информация о цепочке
 export type ChainInfo = {
