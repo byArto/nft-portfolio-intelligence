@@ -65,13 +65,25 @@ export async function exportNFTAsPNG(elementId: string, nftName: string) {
       backgroundColor: '#1e293b',
       scale: 2, // Увеличиваем качество
       logging: false,
-      useCORS: true, // Для загрузки изображений
-      allowTaint: true
+      useCORS: false, // Отключаем CORS
+      allowTaint: true, // Разрешаем "загрязнённые" изображения
+      foreignObjectRendering: false, // Отключаем foreign objects
+      imageTimeout: 0, // Убираем таймаут
+      onclone: (clonedDoc) => {
+        // Убираем прокрутку из клонированного документа
+        const clonedElement = clonedDoc.getElementById(elementId)
+        if (clonedElement) {
+          clonedElement.style.maxHeight = 'none'
+          clonedElement.style.overflow = 'visible'
+        }
+      }
     })
 
     // Конвертируем canvas в blob
     canvas.toBlob((blob) => {
-      if (!blob) return
+      if (!blob) {
+        throw new Error('Failed to create image blob')
+      }
       
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
@@ -84,6 +96,6 @@ export async function exportNFTAsPNG(elementId: string, nftName: string) {
     }, 'image/png')
   } catch (error) {
     console.error('Export failed:', error)
-    throw error
+    throw new Error('Failed to export image. The NFT image may not be accessible.')
   }
 }
