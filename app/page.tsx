@@ -134,7 +134,7 @@ useEffect(() => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors">
+    <div className="min-h-screen transition-colors">
       <div className="fixed top-6 right-6 flex items-center gap-3 z-50">
   <SettingsMenu 
     theme={theme}
@@ -145,7 +145,7 @@ useEffect(() => {
   <SocialLinks />
 </div>
       {/* Hero Section */}
-<div className="border-b border-amber-200/50 dark:border-amber-700/50 bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm">
+<div className="border-b border-slate-700 bg-slate-800/40 backdrop-blur-sm">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-12">
       {/* Global Market Intelligence - слева */}
@@ -155,10 +155,10 @@ useEffect(() => {
 
       {/* Title - по центру */}
       <div className="flex-1 text-center">
-      <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-amber-100">
+      <h1 className="text-4xl sm:text-5xl font-bold text-slate-100">
   {getTranslation(language, 'title')}
 </h1>
-<p className="text-lg text-slate-600 dark:text-amber-400 max-w-2xl mx-auto mt-3">
+<p className="text-lg text-amber-400 max-w-2xl mx-auto mt-3">
   {getTranslation(language, 'subtitle')}
 </p>
       </div>
@@ -186,18 +186,18 @@ useEffect(() => {
         {/* Error Message */}
         {error && (
           <div className="mb-8">
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 text-red-500 mt-0.5">
+                <div className="flex-shrink-0 text-red-400 mt-0.5">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd"/>
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-red-800 dark:text-red-400">
+                  <h3 className="text-sm font-semibold text-red-400">
                     Error loading NFTs
                   </h3>
-                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                  <p className="text-sm text-red-300 mt-1">
                     {error}
                   </p>
                 </div>
@@ -233,15 +233,15 @@ useEffect(() => {
         {/* Empty State */}
         {!isLoading && !error && nfts.length === 0 && (
           <div className="py-20 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 dark:bg-gray-700 mb-4">
-              <svg className="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
+              <svg className="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-slate-900 dark:text-amber-100 mb-2">
+            <h3 className="text-lg font-medium text-slate-100 mb-2">
               Ready to explore
             </h3>
-            <p className="text-slate-600 dark:text-amber-400">
+            <p className="text-slate-400">
               Enter a wallet address above to view NFT portfolio
             </p>
           </div>
