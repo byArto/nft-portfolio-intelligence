@@ -22,8 +22,6 @@ export default function HomePage() {
   const [selectedNFT, setSelectedNFT] = useState<NFTItem | null>(null)
   const [currentAddress, setCurrentAddress] = useState('')
   const [currentChain, setCurrentChain] = useState<Chain>('eth')
-  const [favorites, setFavorites] = useState<string[]>([])
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [language, setLanguage] = useState<Language>('en')
   const [filters, setFilters] = useState<FilterState>({
@@ -31,69 +29,33 @@ export default function HomePage() {
     chains: []
   })
 
-  // Загружаем favorites из localStorage при монтировании
+  // Загружаем настройки из localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('nft-favorites')
-    if (saved) {
-      try {
-        setFavorites(JSON.parse(saved))
-      } catch (e) {
-        console.error('Failed to load favorites', e)
-      }
-    }
+    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
+    const savedLang = localStorage.getItem('language') as Language | null
+    
+    if (savedTheme) setTheme(savedTheme)
+    if (savedLang) setLanguage(savedLang)
   }, [])
 
-  // Сохраняем favorites в localStorage при изменении
+  // Применяем тему
   useEffect(() => {
-    localStorage.setItem('nft-favorites', JSON.stringify(favorites))
-  }, [favorites])
+    if (theme === 'light') {
+      document.documentElement.classList.remove('dark')
+    } else {
+      document.documentElement.classList.add('dark')
+    }
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
-  // Toggle favorite
-  const toggleFavorite = (nft: NFTItem) => {
-    const id = `${nft.contractAddress}-${nft.tokenId}`
-    setFavorites(prev => 
-      prev.includes(id) 
-        ? prev.filter(f => f !== id)
-        : [...prev, id]
-    )
-  }
-   // Загружаем настройки из localStorage
-   useEffect(() => {
-  const savedTheme = localStorage.getItem('theme') as 'dark' | 'light' | null
-    const savedLang = localStorage.getItem('language') as Language | null
-  
-  if (savedTheme) setTheme(savedTheme)
-  if (savedLang) setLanguage(savedLang)
-}, [])
-
-// Применяем тему
-useEffect(() => {
-  if (theme === 'light') {
-    document.documentElement.classList.remove('dark')
-  } else {
-    document.documentElement.classList.add('dark')
-  }
-  localStorage.setItem('theme', theme)
-}, [theme])
-
-// Сохраняем язык
-useEffect(() => {
-  localStorage.setItem('language', language)
-}, [language])
-  // Check if NFT is favorited
-  const isFavorite = (nft: NFTItem) => {
-    const id = `${nft.contractAddress}-${nft.tokenId}`
-    return favorites.includes(id)
-  }
+  // Сохраняем язык
+  useEffect(() => {
+    localStorage.setItem('language', language)
+  }, [language])
 
   // Фильтрация NFT через useMemo
   const filteredNfts = useMemo(() => {
     return nfts.filter(nft => {
-      // Фильтр по избранному
-      if (showFavoritesOnly && !isFavorite(nft)) {
-        return false
-      }
-
       // Фильтр по коллекциям
       if (filters.collections.length > 0 && !filters.collections.includes(nft.collectionName)) {
         return false
@@ -106,7 +68,7 @@ useEffect(() => {
 
       return true
     })
-  }, [nfts, filters, showFavoritesOnly, favorites])
+  }, [nfts, filters])
 
   const handleFetchNFTs = async (address: string, chain: Chain) => {
     setIsLoading(true)
@@ -136,40 +98,41 @@ useEffect(() => {
   return (
     <div className="min-h-screen transition-colors">
       <div className="fixed top-6 right-6 flex items-center gap-3 z-50">
-  <SettingsMenu 
-    theme={theme}
-    language={language}
-    onThemeChange={setTheme}
-    onLanguageChange={setLanguage}
-  />
-  <SocialLinks />
-</div>
+        <SettingsMenu 
+          theme={theme}
+          language={language}
+          onThemeChange={setTheme}
+          onLanguageChange={setLanguage}
+        />
+        <SocialLinks />
+      </div>
+
       {/* Hero Section */}
-<div className="border-b border-slate-700 bg-slate-800/40 backdrop-blur-sm">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-12">
-      {/* Global Market Intelligence - слева */}
-      <div className="w-full lg:w-72 flex-shrink-0">
-        <MarketIntelligence />
-      </div>
+      <div className="border-b border-slate-700 bg-slate-800/40 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8 lg:gap-12">
+            {/* Global Market Intelligence - слева */}
+            <div className="w-full lg:w-72 flex-shrink-0">
+              <MarketIntelligence />
+            </div>
 
-      {/* Title - по центру */}
-      <div className="flex-1 text-center">
-      <h1 className="text-4xl sm:text-5xl font-bold text-slate-100">
-  {getTranslation(language, 'title')}
-</h1>
-<p className="text-lg text-amber-400 max-w-2xl mx-auto mt-3">
-  {getTranslation(language, 'subtitle')}
-</p>
-      </div>
+            {/* Title - по центру */}
+            <div className="flex-1 text-center">
+              <h1 className="text-4xl sm:text-5xl font-bold text-slate-100">
+                {getTranslation(language, 'title')}
+              </h1>
+              <p className="text-lg text-amber-400 max-w-2xl mx-auto mt-3">
+                {getTranslation(language, 'subtitle')}
+              </p>
+            </div>
 
-      {/* Top 100 Market Cap - справа */}
-      <div className="w-full lg:w-72 flex-shrink-0">
-        <Top100MarketCap />
+            {/* Top 100 Market Cap - справа */}
+            <div className="w-full lg:w-72 flex-shrink-0">
+              <Top100MarketCap />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -217,15 +180,10 @@ useEffect(() => {
               nfts={nfts} 
               filters={filters} 
               onFiltersChange={setFilters}
-              showFavoritesOnly={showFavoritesOnly}
-              onToggleFavorites={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              favoritesCount={favorites.length}
             />
             <NFTGrid 
               nfts={filteredNfts} 
               onCardClick={setSelectedNFT}
-              isFavorite={isFavorite}
-              onToggleFavorite={toggleFavorite}
             />
           </div>
         )}

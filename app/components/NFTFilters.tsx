@@ -14,18 +14,12 @@ type Props = {
   nfts: NFTItem[]
   filters: FilterState
   onFiltersChange: (filters: FilterState) => void
-  showFavoritesOnly: boolean
-  onToggleFavorites: () => void
-  favoritesCount: number
 }
 
 export default function NFTFilters({ 
   nfts, 
   filters, 
-  onFiltersChange,
-  showFavoritesOnly,
-  onToggleFavorites,
-  favoritesCount
+  onFiltersChange
 }: Props) {
   // Получаем уникальные коллекции
   const uniqueCollections = Array.from(
@@ -61,8 +55,7 @@ export default function NFTFilters({
 
   const hasActiveFilters = 
     filters.collections.length > 0 ||
-    filters.chains.length > 0 ||
-    showFavoritesOnly
+    filters.chains.length > 0
 
   return (
     <div className="sticky top-0 z-20 bg-slate-900/80 backdrop-blur-md border-b border-slate-700 mb-8">
@@ -81,22 +74,6 @@ export default function NFTFilters({
               Clear all
             </button>
           )}
-        </div>
-
-        {/* Favorites Toggle */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={onToggleFavorites}
-            className={`
-              px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-              ${showFavoritesOnly
-                ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-                : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-yellow-500/30'
-              }
-            `}
-          >
-            ⭐ Favorites {favoritesCount > 0 && `(${favoritesCount})`}
-          </button>
         </div>
 
         {/* Collections Dropdown */}
@@ -152,12 +129,6 @@ export default function NFTFilters({
         {/* Active Filters Pills */}
         {hasActiveFilters && (
           <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-700">
-            {showFavoritesOnly && (
-              <Chip
-                label="Favorites only"
-                onRemove={onToggleFavorites}
-              />
-            )}
             {filters.collections.map(collection => (
               <Chip
                 key={collection}
@@ -192,4 +163,4 @@ function Chip({ label, onRemove }: { label: string; onRemove: () => void }) {
       </button>
     </div>
   )
-}  
+}
