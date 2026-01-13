@@ -10,6 +10,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Dark theme - default background */
+body {
+  background: linear-gradient(to bottom right, #111827, #1e293b, #111827);
+  min-height: 100vh;
+}
+
 /* Custom scrollbar - Dark Theme */
 ::-webkit-scrollbar {
   width: 10px;
@@ -133,7 +139,7 @@ html:not(.dark) {
 
 /* Background - warm gradient */
 html:not(.dark) body {
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%) !important;
   min-height: 100vh;
 }
 
@@ -151,6 +157,11 @@ html:not(.dark) .bg-slate-800\/50 {
   background-color: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(10px);
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+}
+
+html:not(.dark) .bg-slate-800\/40 {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
 }
 
 html:not(.dark) .bg-slate-900\/50 {
