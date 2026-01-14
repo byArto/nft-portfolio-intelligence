@@ -1,106 +1,85 @@
 // app/components/AddressForm.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Search } from 'lucide-react'
+import { useState, FormEvent } from 'react'
 import { Chain } from '../types/nft'
 import ChainSelect from './ChainSelect'
+import { Search, Loader2 } from 'lucide-react'
 
 type Props = {
   onSubmit: (address: string, chain: Chain) => void
   isLoading: boolean
-  currentAddress?: string
-  currentChain?: Chain
+  currentAddress: string
+  currentChain: Chain
 }
 
 export default function AddressForm({ onSubmit, isLoading, currentAddress, currentChain }: Props) {
-  const [address, setAddress] = useState('')
-  const [chain, setChain] = useState<Chain>('eth')
+  const [address, setAddress] = useState(currentAddress)
+  const [chain, setChain] = useState<Chain>(currentChain)
 
-  // Синхронизируем локальный state с props
-  useEffect(() => {
-    if (currentAddress) {
-      setAddress(currentAddress)
-    }
-    if (currentChain) {
-      setChain(currentChain)
-    }
-  }, [currentAddress, currentChain])
-
-  // Автоперезагрузка при смене chain
-  useEffect(() => {
-    // Запускаем только если адрес уже введён и валиден
-    if (address && address.startsWith('0x') && address.length === 42) {
-      onSubmit(address, chain)
-    }
-  }, [chain]) // Зависимость только от chain, не от address
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    
-    if (!address.startsWith('0x') || address.length !== 42) {
-      alert('Invalid Ethereum address. Must start with 0x and be 42 characters long.')
-      return
+    if (address.trim()) {
+      onSubmit(address.trim(), chain)
     }
-    
-    onSubmit(address.trim(), chain)
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-        {/* Chain Selector */}
-        <div className="w-full sm:w-48">
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto">
+      {/* Desktop/Tablet: горизонтальная компоновка */}
+      <div className="hidden sm:flex items-center gap-3">
+        <div className="w-48">
           <ChainSelect 
             value={chain} 
-            onChange={setChain}
+            onChange={setChain} 
             disabled={isLoading}
           />
         </div>
         
-        {/* Address Input */}
         <div className="flex-1">
           <input
             type="text"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="Enter wallet address (0x...)"
+            placeholder="Enter wallet address (0x1234...abcd)"
+            disabled={isLoading}
             className="
               w-full h-12 px-4 rounded-xl
-              bg-slate-800
+              bg-slate-800 
               border border-slate-700
               text-slate-100
-              placeholder-slate-500
+              placeholder:text-slate-500
               hover:border-amber-500/50
               focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent
               transition-all
               disabled:opacity-50 disabled:cursor-not-allowed
             "
-            disabled={isLoading}
           />
         </div>
-        
-        {/* Submit Button */}
+
         <button
           type="submit"
-          disabled={isLoading || !address}
+          disabled={isLoading || !address.trim()}
           className="
-            w-full sm:w-40 h-12
-            bg-gradient-to-r from-amber-500 to-orange-500
-            hover:from-amber-600 hover:to-orange-600
+            h-12 px-8
+            bg-gradient-to-r from-amber-500 to-orange-600
+            hover:from-amber-600 hover:to-orange-700
+            disabled:from-slate-700 disabled:to-slate-700
             text-white font-semibold
             rounded-xl
-            transition-all transform 
-            hover:scale-[1.02] active:scale-[0.98]
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-            flex items-center justify-center gap-2
-            shadow-lg shadow-amber-500/20
+            transition-all
+            disabled:cursor-not-allowed
+            hover:scale-[1.02]
+            shadow-lg shadow-amber-500/30
+            hover:shadow-xl hover:shadow-amber-500/40
+            flex items-center gap-2
+            min-w-[140px]
           "
         >
           {isLoading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span className="hidden sm:inline">Loading</span>
+              <Loader2 size={20} className="animate-spin" />
+              <span>Searching...</span>
             </>
           ) : (
             <>
@@ -109,12 +88,65 @@ export default function AddressForm({ onSubmit, isLoading, currentAddress, curre
             </>
           )}
         </button>
-      </form>
-      
-      {/* Helper Text */}
-      <p className="text-xs text-slate-500 mt-3 text-center sm:text-left">
-        Example: 0x1234...abcd (42 characters)
-      </p>
-    </div>
+      </div>
+
+      {/* Mobile: вертикальная компоновка */}
+      <div className="sm:hidden space-y-3">
+        <ChainSelect 
+          value={chain} 
+          onChange={setChain} 
+          disabled={isLoading}
+        />
+        
+        <input
+          type="text"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder="Wallet address (0x1234...)"
+          disabled={isLoading}
+          className="
+            w-full h-14 px-4 rounded-xl
+            bg-slate-800 
+            border border-slate-700
+            text-slate-100 text-base
+            placeholder:text-slate-500
+            hover:border-amber-500/50
+            focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-transparent
+            transition-all
+            disabled:opacity-50 disabled:cursor-not-allowed
+          "
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading || !address.trim()}
+          className="
+            w-full h-14
+            bg-gradient-to-r from-amber-500 to-orange-600
+            hover:from-amber-600 hover:to-orange-700
+            active:scale-[0.98]
+            disabled:from-slate-700 disabled:to-slate-700
+            text-white font-bold text-lg
+            rounded-xl
+            transition-all
+            disabled:cursor-not-allowed
+            shadow-lg shadow-amber-500/30
+            flex items-center justify-center gap-2
+          "
+        >
+          {isLoading ? (
+            <>
+              <Loader2 size={24} className="animate-spin" />
+              <span>Searching...</span>
+            </>
+          ) : (
+            <>
+              <Search size={24} />
+              <span>Search Portfolio</span>
+            </>
+          )}
+        </button>
+      </div>
+    </form>
   )
 }

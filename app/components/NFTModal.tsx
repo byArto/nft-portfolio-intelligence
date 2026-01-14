@@ -4,9 +4,10 @@
 import { useState } from 'react'
 import { NFTItem } from '../types/nft'
 import { formatPrice, formatPercent, parseHolderPerks } from '../lib/nft-utils'
-import { X, ExternalLink, Calendar, Sparkles, Zap, TrendingUp, TrendingDown, Download, FileJson, Image } from 'lucide-react'
+import { X, ExternalLink, Calendar, Sparkles, Zap, TrendingUp, TrendingDown, FileJson, Image } from 'lucide-react'
 import NFTPriceChart from './NFTPriceChart'
 import { exportNFTAsJSON, exportNFTAsPNG } from '../lib/export-utils'
+import { ChainIcon } from '../lib/chain-icons'
 
 // Цвета редкости
 function getRarityColor(percent?: number): { bg: string; text: string; border: string; label: string } {
@@ -57,64 +58,67 @@ export default function NFTModal({ nft, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md"
       onClick={onClose}
     >
+      {/* Modal Container - Full screen на mobile, ограниченный на desktop */}
       <div
         id="nft-modal-content"
         className="
           bg-slate-800 border border-slate-700
-          rounded-2xl
-          max-w-6xl w-full max-h-[90vh] overflow-y-auto
+          w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-6xl sm:rounded-2xl
+          overflow-y-auto
           shadow-2xl
+          sm:m-4
         "
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 px-6 py-4 flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold text-slate-100">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+          <div className="flex-1 min-w-0 mr-3">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-100 truncate">
               {nft.name}
             </h2>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-slate-400 mt-0.5 truncate">
               {nft.collectionName}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            {/* Export Buttons */}
+          
+          {/* Export buttons - крупнее на mobile */}
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={handleExportJSON}
-              className="p-2 rounded-lg hover:bg-slate-700 transition-colors group"
+              className="p-2.5 sm:p-2 rounded-lg hover:bg-slate-700 transition-colors group"
               title="Export as JSON"
             >
-              <FileJson size={20} className="text-slate-400 group-hover:text-amber-400" />
+              <FileJson size={22} className="sm:w-5 sm:h-5 text-slate-400 group-hover:text-amber-400" />
             </button>
             <button
               onClick={handleExportPNG}
               disabled={isExporting}
-              className="p-2 rounded-lg hover:bg-slate-700 transition-colors group disabled:opacity-50"
+              className="p-2.5 sm:p-2 rounded-lg hover:bg-slate-700 transition-colors group disabled:opacity-50"
               title="Export as PNG"
             >
               {isExporting ? (
                 <div className="animate-spin">
-                  <Download size={20} className="text-slate-400" />
+                  <Image size={22} className="sm:w-5 sm:h-5 text-slate-400" />
                 </div>
               ) : (
-                <Image size={20} className="text-slate-400 group-hover:text-amber-400" />
+                <Image size={22} className="sm:w-5 sm:h-5 text-slate-400 group-hover:text-amber-400" />
               )}
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+              className="p-2.5 sm:p-2 rounded-lg hover:bg-slate-700 transition-colors"
             >
-              <X size={24} className="text-slate-400" />
+              <X size={26} className="sm:w-6 sm:h-6 text-slate-400" />
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Content - адаптивная сетка */}
+        <div className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {/* Left Column - Image */}
             <div className="space-y-4">
               <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-900 border border-slate-700">
@@ -133,10 +137,13 @@ export default function NFTModal({ nft, onClose }: Props) {
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                   Contract Details
                 </h4>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex justify-between">
+                <div className="space-y-1.5 text-xs sm:text-sm">
+                  <div className="flex justify-between items-center">
                     <span className="text-slate-500">Chain</span>
-                    <span className="text-slate-300 font-mono uppercase">{nft.chain}</span>
+                    <div className="flex items-center gap-1.5">
+                      <ChainIcon chain={nft.chain} className="w-3.5 h-3.5" />
+                      <span className="text-slate-300 font-mono uppercase">{nft.chain}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Token ID</span>
@@ -153,20 +160,20 @@ export default function NFTModal({ nft, onClose }: Props) {
             </div>
 
             {/* Right Column - Info */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Price Section */}
-              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5">
+              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 sm:p-5">
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">
                   Pricing
                 </h4>
 
                 {/* Buy vs Floor Comparison */}
-                <div className="bg-slate-800 border border-slate-700 rounded-lg p-4 mb-4">
+                <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 sm:p-4 mb-4">
                   <h5 className="text-xs text-slate-400 mb-3">Price Movement</h5>
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-center flex-1">
                       <p className="text-xs text-slate-500 mb-1">Purchase Price</p>
-                      <p className="text-xl font-bold text-slate-100">
+                      <p className="text-lg sm:text-xl font-bold text-slate-100">
                         {formatPrice(nft.lastSalePrice)}
                       </p>
                       {nft.lastSaleDate && (
@@ -177,7 +184,7 @@ export default function NFTModal({ nft, onClose }: Props) {
                     </div>
 
                     {/* Arrow with Delta */}
-                    <div className="flex flex-col items-center px-4">
+                    <div className="flex flex-col items-center px-3 sm:px-4">
                       {nft.pnl && (
                         <>
                           <div className={`flex items-center gap-1 mb-1 ${
@@ -203,7 +210,7 @@ export default function NFTModal({ nft, onClose }: Props) {
 
                     <div className="text-center flex-1">
                       <p className="text-xs text-slate-500 mb-1">Current Floor</p>
-                      <p className="text-xl font-bold text-slate-100">
+                      <p className="text-lg sm:text-xl font-bold text-slate-100">
                         {formatPrice(nft.floorPrice)}
                       </p>
                     </div>
@@ -213,13 +220,13 @@ export default function NFTModal({ nft, onClose }: Props) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-slate-500 mb-1">Floor Price</p>
-                    <p className="text-2xl font-bold text-slate-100">
+                    <p className="text-xl sm:text-2xl font-bold text-slate-100">
                       {formatPrice(nft.floorPrice)}
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500 mb-1">Last Sale</p>
-                    <p className="text-2xl font-bold text-slate-100">
+                    <p className="text-xl sm:text-2xl font-bold text-slate-100">
                       {formatPrice(nft.lastSalePrice)}
                     </p>
                   </div>
@@ -228,7 +235,7 @@ export default function NFTModal({ nft, onClose }: Props) {
                 {/* P&L */}
                 {nft.pnl && (
                   <div className={`
-                    mt-4 p-4 rounded-lg
+                    mt-4 p-3 sm:p-4 rounded-lg
                     ${nft.pnl.isProfit 
                       ? 'bg-green-500/10 border border-green-500/30' 
                       : 'bg-red-500/10 border border-red-500/30'
@@ -243,14 +250,14 @@ export default function NFTModal({ nft, onClose }: Props) {
                         )}
                         <div>
                           <p className="text-xs text-slate-400 mb-0.5">Profit/Loss</p>
-                          <p className={`text-xl font-bold ${
+                          <p className={`text-lg sm:text-xl font-bold ${
                             nft.pnl.isProfit ? 'text-green-400' : 'text-red-400'
                           }`}>
                             {nft.pnl.isProfit ? '+' : ''}{formatPrice(nft.pnl.valueEth)}
                           </p>
                         </div>
                       </div>
-                      <div className={`text-2xl font-bold ${
+                      <div className={`text-xl sm:text-2xl font-bold ${
                         nft.pnl.isProfit ? 'text-green-400' : 'text-red-400'
                       }`}>
                         {formatPercent(nft.pnl.percent)}
@@ -262,7 +269,7 @@ export default function NFTModal({ nft, onClose }: Props) {
 
               {/* Holder Perks */}
               {holderPerks.length > 0 && (
-                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5">
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 sm:p-5">
                   <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4 flex items-center gap-2">
                     <span>🎁</span>
                     <span>Holder Perks</span>
@@ -288,25 +295,25 @@ export default function NFTModal({ nft, onClose }: Props) {
 
               {/* Attributes */}
               {(nft.rarityRank || nft.utilityText || nft.freshnessDays !== undefined) && (
-                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5">
+                <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 sm:p-5">
                   <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">
                     Attributes
                   </h4>
                   <div className="space-y-3">
-                    {/* Rarity - Enhanced */}
+                    {/* Rarity */}
                     {nft.rarityRank && (
-                      <div className={`flex items-center gap-3 p-4 ${rarityColor.bg} border ${rarityColor.border} rounded-lg`}>
-                        <div className={`flex-shrink-0 w-12 h-12 ${rarityColor.bg} rounded-lg flex items-center justify-center border ${rarityColor.border}`}>
-                          <Sparkles size={24} className={rarityColor.text} />
+                      <div className={`flex items-center gap-3 p-3 sm:p-4 ${rarityColor.bg} border ${rarityColor.border} rounded-lg`}>
+                        <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 ${rarityColor.bg} rounded-lg flex items-center justify-center border ${rarityColor.border}`}>
+                          <Sparkles size={20} className={`sm:w-6 sm:h-6 ${rarityColor.text}`} />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-2">
                             <p className="text-xs text-slate-400">Rarity</p>
                             <span className={`text-xs font-bold ${rarityColor.text}`}>
                               {rarityColor.label}
                             </span>
                           </div>
-                          <p className={`text-lg font-bold ${rarityColor.text} mb-2`}>
+                          <p className={`text-base sm:text-lg font-bold ${rarityColor.text} mb-2`}>
                             Rank #{nft.rarityRank}
                             {nft.rarityPercent && (
                               <span className="text-sm ml-2 opacity-75">
@@ -332,9 +339,9 @@ export default function NFTModal({ nft, onClose }: Props) {
                         <div className="flex-shrink-0 w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
                           <Zap size={20} className="text-blue-400" />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <p className="text-xs text-slate-400">Utility</p>
-                          <p className="text-sm font-semibold text-blue-400">
+                          <p className="text-sm font-semibold text-blue-400 truncate">
                             {nft.utilityText}
                           </p>
                         </div>
@@ -362,26 +369,24 @@ export default function NFTModal({ nft, onClose }: Props) {
               {/* Price History Chart */}
               <NFTPriceChart nft={nft} />
 
-              {/* Marketplace Links */}
-              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-5">
+              {/* Marketplace Links - адаптивный grid */}
+              <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4 sm:p-5">
                 <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">
                   View on Marketplaces
                 </h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {nft.marketplaceLinks.opensea && (
                     <a
                       href={nft.marketplaceLinks.opensea}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="
-                        flex-1 min-w-[140px]
                         flex items-center justify-center gap-2
                         px-4 py-3
-                        bg-blue-500 hover:bg-blue-600
+                        bg-blue-500 hover:bg-blue-600 active:scale-[0.98]
                         text-white text-sm font-semibold
                         rounded-lg
                         transition-all
-                        hover:scale-[1.02]
                       "
                     >
                       OpenSea <ExternalLink size={16} />
@@ -393,14 +398,12 @@ export default function NFTModal({ nft, onClose }: Props) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="
-                        flex-1 min-w-[140px]
                         flex items-center justify-center gap-2
                         px-4 py-3
-                        bg-orange-500 hover:bg-orange-600
+                        bg-orange-500 hover:bg-orange-600 active:scale-[0.98]
                         text-white text-sm font-semibold
                         rounded-lg
                         transition-all
-                        hover:scale-[1.02]
                       "
                     >
                       Blur <ExternalLink size={16} />
@@ -412,14 +415,12 @@ export default function NFTModal({ nft, onClose }: Props) {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="
-                        flex-1 min-w-[140px]
                         flex items-center justify-center gap-2
                         px-4 py-3
-                        bg-green-500 hover:bg-green-600
+                        bg-green-500 hover:bg-green-600 active:scale-[0.98]
                         text-white text-sm font-semibold
                         rounded-lg
                         transition-all
-                        hover:scale-[1.02]
                       "
                     >
                       LooksRare <ExternalLink size={16} />
